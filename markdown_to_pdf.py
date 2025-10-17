@@ -1,7 +1,25 @@
+#!/usr/bin/env python3
+"""
+Markdown to PDF Converter with Navigable Table of Contents
+
+This script converts a Markdown file to a PDF with a navigable table of contents.
+The table of contents is automatically generated from the headings in the markdown file,
+and all links in the TOC are clickable and navigate to the corresponding sections.
+
+Usage:
+    python3 markdown_to_pdf.py [input_file] [output_file]
+    
+Examples:
+    python3 markdown_to_pdf.py                      # Converts readme.md to output.pdf
+    python3 markdown_to_pdf.py readme.md my.pdf     # Converts readme.md to my.pdf
+    python3 markdown_to_pdf.py document.md          # Converts document.md to output.pdf
+"""
+
 from markdown2 import markdown
 from weasyprint import HTML
 import re
 import os
+import sys
 
 def convert_markdown_to_pdf(markdown_file, pdf_file):
     """
@@ -166,10 +184,32 @@ def convert_markdown_to_pdf(markdown_file, pdf_file):
     print(f"PDF successfully created: {pdf_file}")
 
 if __name__ == "__main__":
-    readme_file = 'readme.md'
-    output_pdf_file = 'output.pdf'
+    # Parse command line arguments
+    if len(sys.argv) > 1 and sys.argv[1] in ['-h', '--help', 'help']:
+        print(__doc__)
+        sys.exit(0)
     
+    # Get input and output file names from command line or use defaults
+    if len(sys.argv) >= 2:
+        readme_file = sys.argv[1]
+    else:
+        readme_file = 'readme.md'
+    
+    if len(sys.argv) >= 3:
+        output_pdf_file = sys.argv[2]
+    else:
+        output_pdf_file = 'output.pdf'
+    
+    # Check if input file exists
     if not os.path.exists(readme_file):
         print(f"Error: {readme_file} not found!")
-    else:
+        print(f"\nUsage: python3 {sys.argv[0]} [input_file] [output_file]")
+        print(f"Example: python3 {sys.argv[0]} readme.md output.pdf")
+        sys.exit(1)
+    
+    # Convert the markdown file to PDF
+    try:
         convert_markdown_to_pdf(readme_file, output_pdf_file)
+    except Exception as e:
+        print(f"Error converting {readme_file} to PDF: {e}")
+        sys.exit(1)
